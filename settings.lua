@@ -15,4 +15,25 @@ data:extend({
     default_value = true,
     order = 'a-b'
   },
+  {
+    type = "bool-setting",
+    name = mod_defines.settings.show_leave_message,
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = 'b-a'
+  },
+  {
+    type = "bool-setting",
+    name = mod_defines.settings.show_arrive_message,
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = 'b-b'
+  },
+  {
+    type = "bool-setting",
+    name = mod_defines.settings.show_empty_train,
+    setting_type = "runtime-per-user",
+    default_value = false,
+    order = 'b-c'
+  },
 });
