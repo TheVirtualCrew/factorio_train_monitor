@@ -31,6 +31,13 @@ data:extend({
   },
   {
     type = "bool-setting",
+    name = mod_defines.settings.show_from_to_station,
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = 'b-b'
+  },
+  {
+    type = "bool-setting",
     name = mod_defines.settings.show_empty_train,
     setting_type = "runtime-per-user",
     default_value = false,

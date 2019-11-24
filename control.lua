@@ -1,14 +1,88 @@
 require "defines"
 Tracking = require "script.tracking"
 
-downsize_rich_text = function(text, player_setting)
+local Gui = require('script.gui')
+mod_labels = require("script/label")
+
+global.sponsors = {}
+global.train_queue = {}
+global.gui_position = {}
+
+function downsize_rich_text(text, player_setting)
   if player_setting[mod_defines.settings.downsize_rich_text].value then
     return text:gsub("%[item=(.-)%]", "[img=item.%1]")
-        :gsub("%[fluid=(.-)%]", "[img=fluid.%1]")
-        :gsub("%[entity=(.-)%]", "[img=entity.%1]")
+               :gsub("%[fluid=(.-)%]", "[img=fluid.%1]")
+               :gsub("%[entity=(.-)%]", "[img=entity.%1]")
   end
   return text
 end
+
+function init_globals()
+  global.sponsors = global.sponsors or {}
+  global.gui_position = global.gui_position or {}
+end
+
+function init_gui(player)
+  Gui:init(player)
+end
+
+function on_entity_created(event)
+  local entity = event.created_entity or event.entity
+
+  if entity == nil or entity.supports_backer_name() == false then
+    return ;
+  end
+
+  local label = mod_labels:get_unused_label()
+
+  if label then
+    mod_labels:create_train_label(entity, label);
+  else
+    game.print("Out of sponsors")
+  end
+end
+
+function on_entity_remove(event)
+  local entity = event.created_entity or event.entity
+
+  if entity == nil or entity.supports_backer_name() == false then
+    return ;
+  end
+
+  mod_labels:remove_label_from_train(entity);
+end
+
+script.on_init(function()
+  init_globals();
+  for _, p in pairs(game.players) do
+    init_gui(p)
+  end
+end)
+
+script.on_event(defines.events.on_player_created, function(event)
+  init_gui(game.players[event.player_index])
+end)
+
+script.on_event(defines.events.on_player_joined_game, function(event)
+  local player = game.players[event.player_index];
+  if player and player.valid then
+    init_gui(player)
+  end
+end)
+
+script.on_event(defines.events.on_gui_click, function(event)
+  Gui:click(event)
+end)
+
+script.on_event(defines.events.on_gui_location_changed, function(event)
+  Gui:dragged(event);
+end)
+
+script.on_event(defines.events.on_built_entity, on_entity_created, { { filter = "rolling-stock" } })
+script.on_event(defines.events.on_robot_built_entity, on_entity_created, { { filter = "rolling-stock" } })
+script.on_event(defines.events.on_player_mined_entity, on_entity_remove, { { filter = "rolling-stock" } })
+script.on_event(defines.events.on_robot_mined_entity, on_entity_remove, { { filter = "rolling-stock" } })
+script.on_event(defines.events.on_entity_died, on_entity_remove, { { filter = "rolling-stock" } })
 
 script.on_event(defines.events.on_train_changed_state, function(event)
   local train_left = event.old_state == defines.train_state.wait_station
@@ -38,17 +112,20 @@ script.on_event(defines.events.on_train_changed_state, function(event)
       if train_left then
         printer = { translate_left, table.concat(train_name, ', '),
                     downsize_rich_text(records[previous].station or 'temp', player_setting),
-                    downsize_rich_text(records[train.schedule.current].station or 'temp', player_setting),
-                    content[1].item,
                     content[1].count,
-                    #content > 1 and (#content - 1) or nil
+                    content[1].item,
+                    #content > 1 and (#content - 1) or nil,
+                    player_setting[mod_defines.settings.show_from_to_station].value and
+                        downsize_rich_text(records[train.schedule.current].station or 'temp', player_setting) or nil,
         }
       elseif train_arrived then
         printer = { translate_arrive, table.concat(train_name, ', '),
-                    downsize_rich_text(records[previous].station or 'temp', player_setting),
+                    downsize_rich_text(records[train.schedule.current].station or 'temp', player_setting),
                     content[1].count,
                     content[1].item,
-                    #content > 1 and (#content - 1) or nil
+                    #content > 1 and (#content - 1) or nil,
+                    player_setting[mod_defines.settings.show_from_to_station].value and
+                        downsize_rich_text(records[previous].station or 'temp', player_setting) or nil,
         }
       end
 
