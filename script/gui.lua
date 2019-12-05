@@ -81,6 +81,9 @@ local interface = {
     self.initTopButton(player)
   end,
   initTopButton = function(player)
+    if settings.startup[mod_defines.settings.enable_supporters].value == false then
+      return
+    end
     -- create button list top
     local button_flow = mod_gui.get_button_flow(player)
 
@@ -96,7 +99,9 @@ local interface = {
       sponsor_list_close = self.clickListButton,
       sponsor_list_table_close = self.clickListButton,
       sponsor_list_table_add_new_save = self.clickSaveAddButton,
-      sponsor_list_table_add_new_cancel = self.clickCancelAddButton
+      sponsor_list_table_add_new_cancel = self.clickCancelAddButton,
+      sponsor_list_table_apply_save = self.clickConfirmSelectButton,
+      sponsor_list_table_apply_cancel = self.clickCancelSelectButton,
     }
     local match_trigger = {
       sponsor_list_table_ldelete = self.clickRemoveButton,
@@ -208,8 +213,8 @@ local interface = {
     options = self.mergeLabelToOptions(options, label)
     make_config_table(frame, options)
     local button_table = frame.add { type = "flow", direction = "horizontal" }
-    button_table.add { type = "button", name = "sponsor_list_table_add_new_save", caption = { mod_defines.gui.save } }
     button_table.add { type = "button", name = "sponsor_list_table_add_new_cancel", caption = { mod_defines.gui.cancel } }
+    button_table.add { type = "button", name = "sponsor_list_table_add_new_save", caption = { mod_defines.gui.save } }
   end,
   mergeLabelToOptions = function(options, label)
     local res = options or {}
@@ -260,6 +265,62 @@ local interface = {
     if center_gui.sponsor_list_add then
       center_gui.sponsor_list_add.destroy()
     end
+  end,
+  openSelectWindow = function(self, event)
+    local player = game.players[event.player_index]
+    local center_gui = player.gui.center
+    if center_gui.sponsor_list_apply then
+      return false
+    end
+    local frame = center_gui.add({ type = "frame", name = "sponsor_list_apply", direction = "vertical" })
+    local options = {
+      sponsor_type = mod_labels.get_config().sponsor_type
+    }
+    make_config_table(frame, options)
+    local button_table = frame.add { type = "flow", direction = "horizontal" }
+    button_table.add { type = "button", name = "sponsor_list_table_apply_cancel", caption = { mod_defines.gui.cancel } }
+    button_table.add { type = "button", name = "sponsor_list_table_apply_save", caption = { mod_defines.gui.save } }
+  end,
+  clickConfirmSelectButton = function(self, event)
+    local player = game.players[event.player_index]
+    local center_gui = player.gui.center
+    local frame = center_gui.sponsor_list_apply
+    local options = {
+      sponsor_type = mod_labels.get_config().sponsor_type
+    }
+    local values = parse_config_from_gui(frame, options)
+    local label = mod_labels:get_unused_label(values.sponsor_type)
+
+    if label then
+      mod_labels:create_train_label(global.storage.entity, label)
+    else
+      game.print("Out of sponsors")
+      local stor = global.storage
+      if stor.inventory and stor.inventory.valid then
+        stor.inventory.insert({name = stor.entity.name})
+      end
+      stor.entity.destroy()
+    end
+    self.closeSelectFrame(event)
+    global.storage = {}
+  end,
+  clickCancelSelectButton = function(self, event)
+    local stor = global.storage
+    if stor.inventory and stor.inventory.valid then
+      stor.inventory.insert({name = stor.entity.name})
+    end
+    stor.entity.destroy()
+    self.closeSelectFrame(event)
+    global.storage = {}
+  end,
+  closeSelectFrame = function(event)
+    local player = game.players[event.player_index]
+    local center_gui = player.gui.center
+    if center_gui.sponsor_list_apply then
+      center_gui.sponsor_list_apply.destroy()
+    end
+  end,
+  returnEntityToPlayer = function(player, entity)
   end
 }
 

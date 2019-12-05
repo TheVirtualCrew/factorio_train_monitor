@@ -4,12 +4,7 @@
 
 --[[
 label = {
-  type = {
-    youtube member,
-    patreon Captain of Industry,
-    patreon Robber Baron,
-    patreon Devotee
-  },
+  type = { },
   name = "",
   train_id,
 }
@@ -20,14 +15,14 @@ local label = {
     return {
       sponsor_type = {
         options = {
-          "patreon-coi",
-          "patreon-robber",
-          "patreon-devotee",
+          "patreon-tier-1",
+          "patreon-tier-2",
+          "patreon-tier-3",
           "twitch-tier-1",
           "twitch-tier-2",
           "twitch-tier-3",
         },
-        selected = "patreon-coi"
+        selected = "patreon-tier-1"
       },
       sponsor_name = "",
     }
@@ -40,7 +35,7 @@ local label = {
   get_labels = function(self)
     return global.sponsors
   end,
-  get_label_by_train= function(self, train)
+  get_label_by_locomotive = function(self, train)
     if train == nil then
       return false
     end
@@ -108,11 +103,12 @@ local label = {
       end
     end
   end,
-  get_unused_label = function(self, train)
+  get_unused_label = function(self, type)
     local labels = self:get_labels();
+    type = type or nil
 
     for _, label in pairs(labels) do
-      if label.train == nil then
+      if label.train == nil and ((type ~= nil and label.sponsor_type == type) or type == nil) then
         return label
       end
     end

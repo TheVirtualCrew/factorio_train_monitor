@@ -1,32 +1,49 @@
 local track = {}
 track.on_entity_build = function(event)
-  game.print('Build train');
+  if settings.startup[mod_defines.settings.enable_supporters].value == false then
+    return
+  end
+
   local entity = event.created_entity or event.entity
-  if entity and entity.supports_backer_name() then
-    table.insert(global.trains, {
-      entity = entity,
-      silence = false;
-    })
 
-    local train = track.find_same_train_entities(entity)
-    if (#train > 1) then
+  local inventory
+  if event.robot ~= nil then
+    event.player_index = 1
+    inventory = event.robot.get_inventory(defines.inventory.robot_cargo)
+  else
+    inventory = game.players[event.player_index].character.get_inventory(defines.inventory.character_main)
+  end
 
+  if entity == nil or entity.valid == false then
+    return
+  end
+
+  if entity.type == 'locomotive' then
+    local result = Gui:openSelectWindow(event)
+
+    if result == false then
+      entity.destroy()
+      return
     end
+    global.storage = {entity = entity, inventory = inventory};
   end
 end
 
 track.on_entity_removed = function (event)
   local entity = event.created_entity or event.entity
-  if entity and entity.supports_backer_name() then
-    for _, train in pairs(global.trains) do
-      if (train.entity == entity) then
-      end
-    end
+
+  if settings.startup[mod_defines.settings.enable_supporters].value == false then
+    return
   end
+
+  if entity == nil or entity.supports_backer_name() == false then
+    return
+  end
+
+  mod_labels:remove_label_from_train(entity)
 end
 
 track.should_silence = function(entity)
-
 end
 
 track.get_train_names = function(train)
@@ -43,6 +60,18 @@ track.get_train_names = function(train)
   end
 
   return train_names
+end
+
+track.get_train_cargo_length = function(train)
+  local length = 0;
+  if #train.cargo_wagons > 0 then
+    length =  length + #train.cargo_wagons
+  end
+  if #train.fluid_wagons > 0 then
+    length =  length + #train.fluid_wagons
+  end
+
+  return length
 end
 
 track.get_train_contents = function(train)
@@ -89,11 +118,5 @@ track.find_same_train_entities = function(entity)
 
   return ents;
 end
-
---script.on_event(defines.events.on_built_entity, track.on_entity_build, {{filter = "rolling-stock"}});
---script.on_event(defines.events.on_robot_built_entity, track.on_entity_build, {{filter = "rolling-stock"}});
---script.on_event(defines.events.on_entity_died, track.on_entity_removed, {{filter = "rolling-stock"}});
---script.on_event(defines.events.on_player_mined_entity, track.on_entity_removed, {{filter = "rolling-stock"}});
---script.on_event(defines.events.on_robot_mined_entity, track.on_entity_removed, {{filter = "rolling-stock"}});
 
 return track;
