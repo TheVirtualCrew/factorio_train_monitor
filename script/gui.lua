@@ -75,6 +75,7 @@ function make_config_table(gui, config)
     label.caption = { "", { mod_defines.prefix .. "_gui." .. k }, { "colon" } }
   end
 end
+local temp = {}
 
 local interface = {
   init = function(self, player)
@@ -104,6 +105,7 @@ local interface = {
       sponsor_list_table_apply_cancel = self.clickCancelSelectButton,
     }
     local match_trigger = {
+      sponsor_list_table_ledit = self.clickEditButton,
       sponsor_list_table_ldelete = self.clickRemoveButton,
     }
 
@@ -178,23 +180,34 @@ local interface = {
 
       for index, label in pairs(labels) do
         local is_used = mod_defines.gui.no
-        if label.train ~= nil then
+        if label.train ~= nil and label.train.valid then
           is_used = mod_defines.gui.yes
         end
         table.add { type = "label", name = "sponsor_list_table_ltype" .. index, caption = { mod_defines.prefix .. "_gui." .. label.sponsor_type } }
         table.add { type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name }
         table.add { type = "label", name = "sponsor_list_table_lused" .. index, caption = { is_used } }
         local button_flow = table.add { type = "flow", name = "sponsor_list_tablel_buttonflow" .. index }
-        local button = button_flow.add { type = "button", name = "sponsor_list_table_ldelete" .. index, caption = { mod_defines.gui.delete } }
+        local button
+        button = button_flow.add { type = "button", name = "sponsor_list_table_ledit" .. index, caption = { mod_defines.gui.edit } }
         button.style.height = 28
         button.style.top_padding = 0
         button.style.bottom_padding = 0
+
+        button = button_flow.add { type = "button", name = "sponsor_list_table_ldelete" .. index, caption = { mod_defines.gui.delete } }
+        button.style.height = 28
+        button.style.top_padding = 0
+        button.style.bottom_padding = 0
+
       end
 
       local button_table = frame.add { type = "flow", direction = "horizontal" }
       button_table.add { type = "button", name = "sponsor_list_table_add_new", caption = { mod_defines.gui.add_new } }
       --button_table.add { type = "button", name = "sponsor_list_table_close", caption = { "close" } }
     end
+  end,
+  clickEditButton = function(self, event, index)
+    temp[event.player_index] = index
+    self:clickAddButton(event, index)
   end,
   clickAddButton = function(self, event, index)
     -- open input dialog
@@ -248,9 +261,13 @@ local interface = {
     local options = mod_labels.get_config()
     local values = parse_config_from_gui(frame, options)
 
-    mod_labels:add_label(values)
+    mod_labels:add_label(values, temp[event.player_index] or nil)
     self:closeAddFrame(event)
     self:clickListButton(event)
+    global.storage = {}
+    if temp[event.player_index] then
+        temp[event.player_index] = nil
+    end
   end,
   clickRemoveButton = function(self, event, index)
     index = tonumber(index)
@@ -303,6 +320,9 @@ local interface = {
     end
     self.closeSelectFrame(event)
     global.storage = {}
+    if temp[event.player_index] then
+        temp[event.player_index] = nil
+    end
   end,
   clickCancelSelectButton = function(self, event)
     local stor = global.storage

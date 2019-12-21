@@ -4,6 +4,7 @@ mod_defines = {
 
 mod_defines.settings = {
   show_notification = mod_defines.prefix .. "_show_notification",
+  show_train_name = mod_defines.prefix .. "_show_train_name",
   show_leave_message = mod_defines.prefix .. "_show_leave_message",
   show_arrive_message = mod_defines.prefix .. "_show_arrive_message",
   show_empty_train= mod_defines.prefix .. "_show_empty_train",
@@ -27,6 +28,7 @@ mod_defines.gui = {
   frame_title = mod_defines.prefix .."_gui.frame_title",
   add_new = mod_defines.prefix .."_gui.add_new",
   delete = mod_defines.prefix .."_gui.delete",
+  edit = mod_defines.prefix .."_gui.edit",
   table_action = mod_defines.prefix .."_gui.table_action",
   table_used = mod_defines.prefix .."_gui.table_used",
   table_name = mod_defines.prefix .."_gui.table_name",

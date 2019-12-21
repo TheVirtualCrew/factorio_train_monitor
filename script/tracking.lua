@@ -6,19 +6,19 @@ track.on_entity_build = function(event)
 
   local entity = event.created_entity or event.entity
 
-  local inventory
-  if event.robot ~= nil then
-    event.player_index = 1
-    inventory = event.robot.get_inventory(defines.inventory.robot_cargo)
-  else
-    inventory = game.players[event.player_index].character.get_inventory(defines.inventory.character_main)
-  end
-
-  if entity == nil or entity.valid == false then
-    return
-  end
-
   if entity.type == 'locomotive' then
+    local inventory
+    if event.robot ~= nil then
+      event.player_index = 1
+      inventory = event.robot.get_inventory(defines.inventory.robot_cargo)
+    elseif event.player_index then
+      inventory = game.players[event.player_index].character.get_inventory(defines.inventory.character_main)
+    end
+
+    if entity == nil or entity.valid == false or inventory == nil then
+      return
+    end
+
     local result = Gui:openSelectWindow(event)
 
     if result == false then
@@ -40,22 +40,22 @@ track.on_entity_removed = function (event)
     return
   end
 
-  mod_labels:remove_label_from_train(entity)
+  mod_labels:remove_label_from_train(mod_labels:get_label_by_locomotive(entity))
 end
 
 track.should_silence = function(entity)
 end
 
-track.get_train_names = function(train)
+track.get_train_names = function(train, event)
   local train_names = {}
   for _,loco in pairs(train.locomotives.front_movers) do
     if loco.supports_backer_name() and loco.backer_name  then
-      table.insert(train_names,loco.backer_name)
+      table.insert(train_names, loco.backer_name)
     end
   end
   for _,loco in pairs(train.locomotives.back_movers) do
     if loco.supports_backer_name() and loco.backer_name then
-      table.insert(train_names,loco.backer_name)
+      table.insert(train_names, loco.backer_name)
     end
   end
 
@@ -65,10 +65,10 @@ end
 track.get_train_cargo_length = function(train)
   local length = 0;
   if #train.cargo_wagons > 0 then
-    length =  length + #train.cargo_wagons
+    length = length + #train.cargo_wagons
   end
   if #train.fluid_wagons > 0 then
-    length =  length + #train.fluid_wagons
+    length = length + #train.fluid_wagons
   end
 
   return length
@@ -80,7 +80,7 @@ track.get_train_contents = function(train)
     content[#content + 1] = {item = game.item_prototypes[item].localised_name, count = contents};
   end
   for item, contents in pairs(train.get_fluid_contents()) do
-    content[#content + 1] = {item = game.fluid_prototypes[item].localised_name, count = contents};
+    content[#content + 1] = {item = game.fluid_prototypes[item].localised_name, count = math.round(contents)};
   end
 
   if (#content == 0) then

@@ -1,3 +1,11 @@
+Version: 0.1.5
+Date: 05. 12. 2019
+    Added:
+        - Popup to select tier
+        - minor other fixes
+        - rounding fluids
+        - fixed removing a train not being removed from patreons
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 23. 10. 2019
     Initial release:

@@ -1,4 +1,8 @@
 require "defines"
+
+table = require('__stdlib__/stdlib/utils/table')
+math = require('__stdlib__/stdlib/utils/math')
+
 Gui = {}
 Tracking = require "script.tracking"
 Gui = require('script.gui')
@@ -78,7 +82,7 @@ script.on_event(defines.events.on_train_changed_state, function(event)
   local train_arrived = event.old_state == defines.train_state.arrive_station
   if train_left or train_arrived then
     local train = event.train
-    local train_name = Tracking.get_train_names(train)
+    local train_name = Tracking.get_train_names(train, event)
     local records = train.schedule.records
     local previous = train.schedule.current - 1
     if previous <= 0 then
@@ -98,13 +102,18 @@ script.on_event(defines.events.on_train_changed_state, function(event)
       local show_full = player_setting[mod_defines.settings.show_from_to_station].value
       local translate_left = show_full and mod_defines.locale.left_station_full or mod_defines.locale.left_station
       local translate_arrive = show_full and mod_defines.locale.arrive_station_full or mod_defines.locale.arrive_station
+      local temp_train_names = table.deep_copy(train_name)
       if (#content >= 2) then
         translate_left = show_full and mod_defines.locale.left_station_2_full or mod_defines.locale.left_station_2
         translate_arrive = show_full and mod_defines.locale.arrive_station_2_full or mod_defines.locale.arrive_station_2
       end
 
+      if player_setting[mod_defines.settings.show_train_name].value == false then
+        temp_train_names = {"Train"};
+      end
+
       if train_left then
-        printer = { translate_left, table.concat(train_name, ', '),
+        printer = { translate_left, table.concat(temp_train_names, ', '),
                     downsize_rich_text(records[previous].station or 'temp', player_setting),
                     content[1].count,
                     content[1].item,
@@ -113,7 +122,7 @@ script.on_event(defines.events.on_train_changed_state, function(event)
                         downsize_rich_text(records[train.schedule.current].station or 'temp', player_setting) or nil,
         }
       elseif train_arrived then
-        printer = { translate_arrive, table.concat(train_name, ', '),
+        printer = { translate_arrive, table.concat(temp_train_names, ', '),
                     downsize_rich_text(records[train.schedule.current].station or 'temp', player_setting),
                     content[1].count,
                     content[1].item,
@@ -142,3 +151,41 @@ script.on_event(defines.events.on_train_changed_state, function(event)
     end
   end
 end)
+
+-- local tmp = {};
+-- script.on_event(defines.events.on_train_created, function(event)
+--     game.print(serpent.block(event.train.id));
+--     game.print({"", "Old train ", serpent.block(event.old_train_id_1)})
+--     game.print({"", "Old train2 ", serpent.block(event.old_train_id_2)})
+--     if event.old_train_id_1 == nil and event.old_train_id_2 == nil then
+--         -- new loco
+--         table.insert(tmp, event.train.id);
+--     elseif event.old_train_id_1 ~= nil and event.old_train_id_2 == nil then
+--         -- Removed train?
+--     elseif event.old_train_id_1 ~= nil and event.old_train_id_2 ~= nil then
+--         if table.find(tmp, function(v, i, f) return v == f end, event.old_train_id_1) then
+--             -- found new train
+--         end
+--         if table.find(tmp, function(v, i, f) return v == f end, event.old_train_id_2) then
+--             -- found new train
+--         end
+--         -- Check if its not only adding new vehicle to another one
+--         -- Has 2 trains, add gui for picking one
+--
+--
+--         tmp = {}
+--     end
+-- end);
+
+remote.add_interface('train_monitor', {
+  add_sponsors = function(tier, entries)
+    local label
+    for _, entry in pairs(entries) do
+      label = {
+        sponsor_name = entry,
+        sponsor_type = tier
+      }
+      mod_labels:add_label(label)
+    end
+  end
+});

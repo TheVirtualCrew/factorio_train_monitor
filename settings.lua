@@ -10,6 +10,13 @@ data:extend({
   },
   {
     type = "bool-setting",
+    name = mod_defines.settings.show_train_name,
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = 'a-a'
+  },
+  {
+    type = "bool-setting",
     name = mod_defines.settings.downsize_rich_text,
     setting_type = "runtime-per-user",
     default_value = true,
