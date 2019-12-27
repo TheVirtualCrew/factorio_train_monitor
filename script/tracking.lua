@@ -9,13 +9,18 @@ track.on_entity_build = function(event)
   if entity.type == 'locomotive' then
     local inventory
     if event.robot ~= nil then
-      event.player_index = 1
+      event.player_index = entity.last_user.index
       inventory = event.robot.get_inventory(defines.inventory.robot_cargo)
     elseif event.player_index then
       inventory = game.players[event.player_index].character.get_inventory(defines.inventory.character_main)
     end
 
     if entity == nil or entity.valid == false or inventory == nil then
+      return
+    end
+
+    local tmp_label = mod_labels:get_label_by_train(entity.train)
+    if tmp_label ~= false then
       return
     end
 
@@ -40,7 +45,7 @@ track.on_entity_removed = function (event)
     return
   end
 
-  mod_labels:remove_label_from_train(mod_labels:get_label_by_locomotive(entity))
+  mod_labels:remove_label_from_train(mod_labels:get_label_by_train(entity.train))
 end
 
 track.should_silence = function(entity)

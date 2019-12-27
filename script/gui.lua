@@ -309,7 +309,7 @@ local interface = {
     local label = mod_labels:get_unused_label(values.sponsor_type)
 
     if label then
-      mod_labels:create_train_label(global.storage.entity, label)
+      mod_labels:create_train_label(global.storage.entity.train, label)
     else
       game.print("Out of sponsors")
       local stor = global.storage

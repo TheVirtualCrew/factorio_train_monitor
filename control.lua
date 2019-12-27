@@ -1,3 +1,5 @@
+-- pcall(require,'__debugadapter__/debugadapter.lua')
+
 require "defines"
 
 table = require('__stdlib__/stdlib/utils/table')
@@ -83,6 +85,9 @@ script.on_event(defines.events.on_train_changed_state, function(event)
   if train_left or train_arrived then
     local train = event.train
     local train_name = Tracking.get_train_names(train, event)
+    if train.schedule == nil then
+      return
+    end
     local records = train.schedule.records
     local previous = train.schedule.current - 1
     if previous <= 0 then
@@ -152,30 +157,48 @@ script.on_event(defines.events.on_train_changed_state, function(event)
   end
 end)
 
--- local tmp = {};
--- script.on_event(defines.events.on_train_created, function(event)
---     game.print(serpent.block(event.train.id));
---     game.print({"", "Old train ", serpent.block(event.old_train_id_1)})
---     game.print({"", "Old train2 ", serpent.block(event.old_train_id_2)})
---     if event.old_train_id_1 == nil and event.old_train_id_2 == nil then
---         -- new loco
---         table.insert(tmp, event.train.id);
---     elseif event.old_train_id_1 ~= nil and event.old_train_id_2 == nil then
---         -- Removed train?
---     elseif event.old_train_id_1 ~= nil and event.old_train_id_2 ~= nil then
---         if table.find(tmp, function(v, i, f) return v == f end, event.old_train_id_1) then
---             -- found new train
---         end
---         if table.find(tmp, function(v, i, f) return v == f end, event.old_train_id_2) then
---             -- found new train
---         end
---         -- Check if its not only adding new vehicle to another one
---         -- Has 2 trains, add gui for picking one
---
---
---         tmp = {}
---     end
--- end);
+local trains = {}
+script.on_event(defines.events.on_train_created, function(event)
+    if event.old_train_id_1 == nil and event.old_train_id_2 == nil then
+
+    elseif event.old_train_id_1 ~= nil and event.old_train_id_2 == nil then
+      -- Removed train?
+      -- merge train
+      local old_label = mod_labels:get_label_by_train_id(event.old_train_id_1)
+      if old_label then
+        mod_labels:create_train_label(event.train, old_label)
+      else 
+        event.entity = event.train.locomotives.front_movers[1] or event.train.locomotives.back_movers[1]
+        event.player_index = event.entity.last_user.index
+        Tracking.on_entity_build(event)
+      end
+    elseif event.old_train_id_1 ~= nil and event.old_train_id_2 ~= nil then
+      local old_label_1 = mod_labels:get_label_by_train_id(event.old_train_id_2)
+      local old_label_2 mod_labels:get_label_by_train_id(event.old_train_id_1)
+      if old_label_1 then
+        mod_labels:create_train_label(event.train, old_label_1)
+      end
+      if old_label_2 then
+        mod_labels:remove_label_from_train(old_label_2)
+      end
+    end
+end);
+
+script.on_configuration_changed(function(event)
+  local changed = event.mod_changes and event.mod_changes.train_monitor or false
+
+  if changed and changed.old_version == "0.1.4" then
+    if global.sponsors then
+      for _, label in pairs(global.sponsors) do
+        if label.train then
+          local loco = label.train
+          label.train_id = loco.train.id
+          label.train = loco.train
+        end
+      end
+    end
+  end
+end)
 
 remote.add_interface('train_monitor', {
   add_sponsors = function(tier, entries)
