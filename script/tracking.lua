@@ -52,6 +52,13 @@ track.should_silence = function(entity)
 end
 
 track.get_train_names = function(train, event)
+  if settings.startup[mod_defines.settings.enable_supporters].value then
+    local label = mod_labels:get_label_by_train(train)
+    if label then
+      return {label.sponsor_name}
+    end
+  end
+
   local train_names = {}
   for _,loco in pairs(train.locomotives.front_movers) do
     if loco.supports_backer_name() and loco.backer_name  then
