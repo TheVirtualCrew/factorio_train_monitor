@@ -1,5 +1,21 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.7
+Date: 2019.12.28
+    Fixed:
+        - Crash when train was left without loco's
+        - Some more checks if we can actually handle certain events
+---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+Date: 2019.12.27
+    Fixed:
+        - Crash when train was leaving without stations (after temp stop)
+        - Popup shows correct used/unused
+    Changed:
+        - Patreons are assigned to trains, not loco
+        - Trains can now be merged/disconnected
+---------------------------------------------------------------------------------------------------
 Version: 0.1.5
-Date: 05. 12. 2019
+Date: 2019.12.05
     Added:
         - Popup to select tier
         - minor other fixes
@@ -7,7 +23,7 @@ Date: 05. 12. 2019
         - fixed removing a train not being removed from patreons
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
-Date: 23. 10. 2019
+Date: 2019.10.23
     Initial release:
         - Simple notification for trains
         - Trains are auto named

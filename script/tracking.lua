@@ -6,7 +6,7 @@ track.on_entity_build = function(event)
 
   local entity = event.created_entity or event.entity
 
-  if entity.type == 'locomotive' then
+  if entity and entity.type == 'locomotive' then
     local inventory
     if event.robot ~= nil then
       event.player_index = entity.last_user.index
