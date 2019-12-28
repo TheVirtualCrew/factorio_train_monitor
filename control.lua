@@ -273,12 +273,12 @@ remote.add_interface(
     fix_train_by_loco_name = function()
       local labels = mod_labels:get_labels()
       local trains = Trains.find_filtered({force = game.forces.player})
-      for _, train in pairs(train) do
-        local loco = Train.get_main_locomotive(train)
+      for _, train in pairs(trains) do
+        local loco = Trains.get_main_locomotive(train.train)
         for _, label in pairs(labels) do
           if label.sponsor_name == loco.backer_name then
-            label.train = train
-            label.train_id = train.id
+            label.train = train.train
+            label.train_id = train.train.id
           end
         end
       end
