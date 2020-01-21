@@ -54,7 +54,7 @@ data:extend({
     type = "bool-setting",
     name = mod_defines.settings.enable_supporters,
     setting_type = "startup",
-    default_value = true,
+    default_value = false,
     order = 'a-a'
   },
 });
