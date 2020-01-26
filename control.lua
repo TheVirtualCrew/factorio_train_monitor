@@ -1,12 +1,11 @@
-pcall(require, "__debugadapter__/debugadapter.lua")
+local __DebugAdapter = (mods or script.active_mods)["debugadapter"] and require("__debugadapter__/debugadapter.lua")
 
 require "defines"
-local config = require("__stdlib__/stdlib/config")
-config.skip_script_protections = true
+-- local config = require("__stdlib__/stdlib/config")
+-- config.skip_script_protections = true
 
-Trains = require("__stdlib__/stdlib/event/trains")
-table = require("__stdlib__/stdlib/utils/table")
-math = require("__stdlib__/stdlib/utils/math")
+-- Trains = require("__stdlib__/stdlib/event/trains")
+-- table = require("__stdlib__/stdlib/utils/table")
 
 Gui = {}
 Tracking = require "script.tracking"
@@ -128,7 +127,7 @@ script.on_event(
         local translate_left = show_full and mod_defines.locale.left_station_full or mod_defines.locale.left_station
         local translate_arrive =
           show_full and mod_defines.locale.arrive_station_full or mod_defines.locale.arrive_station
-        local temp_train_names = table.deep_copy(train_name)
+        local temp_train_names = table.deepcopy(train_name)
         if (#content >= 2) then
           translate_left = show_full and mod_defines.locale.left_station_2_full or mod_defines.locale.left_station_2
           translate_arrive =
@@ -246,41 +245,6 @@ remote.add_interface(
           sponsor_type = tier
         }
         mod_labels:add_label(label)
-      end
-    end,
-    fix_train = function(names)
-      local labels = mod_labels:get_labels()
-      local trains = Trains.find_filtered({force = game.forces.player})
-      for _, item in pairs(names) do
-        for _, label in pairs(labels) do
-          if label.sponsor_name == item.name and label.sponsor_type == item.tier then
-            label.train =
-              table.find(
-              trains,
-              function(v, i, a)
-                return v.id == a
-              end,
-              label.train_id
-            ) or nil
-
-            if label.train then
-              label.train_id = label.train.id
-            end
-          end
-        end
-      end
-    end,
-    fix_train_by_loco_name = function()
-      local labels = mod_labels:get_labels()
-      local trains = Trains.find_filtered({force = game.forces.player})
-      for _, train in pairs(trains) do
-        local loco = Trains.get_main_locomotive(train.train)
-        for _, label in pairs(labels) do
-          if label.sponsor_name == loco.backer_name then
-            label.train = train.train
-            label.train_id = train.train.id
-          end
-        end
       end
     end,
     export_old_trains = function()

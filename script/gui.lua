@@ -169,12 +169,12 @@ local interface = {
 
       local scroll = frame.add { type = "scroll-pane", name = "sponsor_list_scroll", vertical_scroll_policy = "always" }
       scroll.style.height = 250
-      local table = scroll.add { type = "table", name = "sponsor_list_table", column_count = 4, style = "table_with_selection" }
+      local list_table = scroll.add { type = "table", name = "sponsor_list_table", column_count = 4, style = "table_with_selection" }
 
-      table.add { type = "label", name = "sponsor_list_table_type", caption = { mod_defines.gui.table_type }, style = 'bold_label' }
-      table.add { type = "label", name = "sponsor_list_table_name", caption = { mod_defines.gui.table_name }, style = 'bold_label' }
-      table.add { type = "label", name = "sponsor_list_table_is_used", caption = { mod_defines.gui.table_used }, style = 'bold_label' }
-      table.add { type = "label", name = "sponsor_list_table_buttons", caption = { mod_defines.gui.table_action }, style = 'bold_label' }
+      list_table.add { type = "label", name = "sponsor_list_table_type", caption = { mod_defines.gui.table_type }, style = 'bold_label' }
+      list_table.add { type = "label", name = "sponsor_list_table_name", caption = { mod_defines.gui.table_name }, style = 'bold_label' }
+      list_table.add { type = "label", name = "sponsor_list_table_is_used", caption = { mod_defines.gui.table_used }, style = 'bold_label' }
+      list_table.add { type = "label", name = "sponsor_list_table_buttons", caption = { mod_defines.gui.table_action }, style = 'bold_label' }
 
       local labels = mod_labels:get_labels()
 
@@ -183,10 +183,10 @@ local interface = {
         if label.train ~= nil and label.train.valid then
           is_used = mod_defines.gui.yes
         end
-        table.add { type = "label", name = "sponsor_list_table_ltype" .. index, caption = { mod_defines.prefix .. "_gui." .. label.sponsor_type } }
-        table.add { type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name }
-        table.add { type = "label", name = "sponsor_list_table_lused" .. index, caption = { is_used } }
-        local button_flow = table.add { type = "flow", name = "sponsor_list_tablel_buttonflow" .. index }
+        list_table.add { type = "label", name = "sponsor_list_table_ltype" .. index, caption = { mod_defines.prefix .. "_gui." .. label.sponsor_type } }
+        list_table.add { type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name }
+        list_table.add { type = "label", name = "sponsor_list_table_lused" .. index, caption = { is_used } }
+        local button_flow = list_table.add { type = "flow", name = "sponsor_list_tablel_buttonflow" .. index }
         local button
         button = button_flow.add { type = "button", name = "sponsor_list_table_ledit" .. index, caption = { mod_defines.gui.edit } }
         button.style.height = 28
