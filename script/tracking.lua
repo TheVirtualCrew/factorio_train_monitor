@@ -1,4 +1,9 @@
 local track = {}
+
+local round = math and math.round or function(value)
+    return math.floor(value)
+  end
+
 track.on_entity_build = function(event)
   if settings.startup[mod_defines.settings.enable_supporters].value == false then
     return
@@ -6,7 +11,7 @@ track.on_entity_build = function(event)
 
   local entity = event.created_entity or event.entity
 
-  if entity and entity.type == 'locomotive' then
+  if entity and entity.type == "locomotive" then
     local inventory
     if event.robot ~= nil then
       event.player_index = entity.last_user.index
@@ -30,11 +35,11 @@ track.on_entity_build = function(event)
       entity.destroy()
       return
     end
-    global.storage = {entity = entity, inventory = inventory};
+    global.storage = {entity = entity, inventory = inventory}
   end
 end
 
-track.on_entity_removed = function (event)
+track.on_entity_removed = function(event)
   local entity = event.created_entity or event.entity
 
   if settings.startup[mod_defines.settings.enable_supporters].value == false then
@@ -60,12 +65,12 @@ track.get_train_names = function(train, event)
   end
 
   local train_names = {}
-  for _,loco in pairs(train.locomotives.front_movers) do
-    if loco.supports_backer_name() and loco.backer_name  then
+  for _, loco in pairs(train.locomotives.front_movers) do
+    if loco.supports_backer_name() and loco.backer_name then
       table.insert(train_names, loco.backer_name)
     end
   end
-  for _,loco in pairs(train.locomotives.back_movers) do
+  for _, loco in pairs(train.locomotives.back_movers) do
     if loco.supports_backer_name() and loco.backer_name then
       table.insert(train_names, loco.backer_name)
     end
@@ -75,7 +80,7 @@ track.get_train_names = function(train, event)
 end
 
 track.get_train_cargo_length = function(train)
-  local length = 0;
+  local length = 0
   if #train.cargo_wagons > 0 then
     length = length + #train.cargo_wagons
   end
@@ -87,23 +92,26 @@ track.get_train_cargo_length = function(train)
 end
 
 track.get_train_contents = function(train)
-  local content = {};
+  local content = {}
   for item, contents in pairs(train.get_contents()) do
-    content[#content + 1] = {item = game.item_prototypes[item].localised_name, count = contents};
+    content[#content + 1] = {item = game.item_prototypes[item].localised_name, count = contents}
   end
   for item, contents in pairs(train.get_fluid_contents()) do
-    content[#content + 1] = {item = game.fluid_prototypes[item].localised_name, count = math.round(contents)};
+    content[#content + 1] = {item = game.fluid_prototypes[item].localised_name, count = round(contents)}
   end
 
   if (#content == 0) then
-    content[1] = {item = 'items', count = 0}
+    content[1] = {item = "items", count = 0}
   end
 
-  table.sort(content, function(a, b)
-    return a.count > b.count
-  end);
+  table.sort(
+    content,
+    function(a, b)
+      return a.count > b.count
+    end
+  )
 
-  return content;
+  return content
 end
 
 track.find_same_train_entities = function(entity)
@@ -111,7 +119,7 @@ track.find_same_train_entities = function(entity)
   local train = entity.train
 
   if train then
-    local trains = global.trains;
+    local trains = global.trains
     for _, loco in pairs(train.locomotives.front_movers) do
       for _, t in pairs(trains) do
         if t.entity == loco then
@@ -128,7 +136,7 @@ track.find_same_train_entities = function(entity)
     end
   end
 
-  return ents;
+  return ents
 end
 
-return track;
+return track
