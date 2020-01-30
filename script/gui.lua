@@ -361,7 +361,7 @@ local interface = {
   end,
   applySort = function(self, list, event)
     local idx = event.player_index
-    if not sort[idx] or not sort[idx].sort then
+    if not sort[idx] or not sort[idx].sort or not sort[idx].sort.column then
       return list
     end
 
@@ -377,6 +377,9 @@ local interface = {
     table.sort(
       list,
       function(a, b)
+        if not a or not b then 
+          return false
+        end
         if a[sort_column] ~= b[sort_column] then
           if sort_dir == sort_order.desc then
             return a[sort_column] < b[sort_column]
