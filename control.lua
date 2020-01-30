@@ -90,6 +90,13 @@ script.on_event(
   end
 )
 
+script.on_event(
+  defines.events.on_gui_text_changed,
+  function(event)
+    Gui:searched(event)
+  end
+)
+
 script.on_event(defines.events.on_built_entity, Tracking.on_entity_build, {{filter = "rolling-stock"}})
 script.on_event(defines.events.on_robot_built_entity, Tracking.on_entity_build, {{filter = "rolling-stock"}})
 script.on_event(defines.events.on_entity_died, Tracking.on_entity_removed, {{filter = "rolling-stock"}})
