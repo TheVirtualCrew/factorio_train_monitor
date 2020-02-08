@@ -22,7 +22,7 @@ function downsize_rich_text(text, player_setting)
     return text:gsub("%[item=(.-)%]", "[img=item.%1]"):gsub("%[fluid=(.-)%]", "[img=fluid.%1]"):gsub(
       "%[entity=(.-)%]",
       "[img=entity.%1]"
-    )
+    ):gsub("%[recipe=(.-)%]", "[img=recipe.%1]")
   end
   return text
 end

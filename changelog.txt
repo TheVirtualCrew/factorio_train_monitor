@@ -1,59 +1,65 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.5
+Date: 2020.02.08
+  Changes:
+    - Recipes now get replaced with rich text with smaller version
+---------------------------------------------------------------------------------------------------
 Version: 0.2.4
 Date: 2020.01.30
   Changes:
-        - Fixed crash when sorting a searched table
+    - Fixed crash when sorting a searched table
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.3
 Date: 2020.01.30
   Changes:
-        - Make the table sortable
-        - Make the table searchable
+    - Make the table sortable
+    - Make the table searchable
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.2
 Date: 2020.01.29
   Changes:
-        - Crash on fluid trains
+    - Crash on fluid trains
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2019.12.30
+  Changes:
     - Updated for 0.18
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.9
 Date: 2019.12.30
-    Fixed:
-        - Disable patreons by default
+  Changes:
+    - Disable patreons by default
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.8
 Date: 2019.12.28
-    Fixed:
-        - Fix by loco name fixed
+  Changes:
+    - Fix by loco name fixed
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.7
 Date: 2019.12.28
-    Fixed:
-        - Crash when train was left without loco's
-        - Some more checks if we can actually handle certain events
+  Changes:
+    - Crash when train was left without loco's
+    - Some more checks if we can actually handle certain events
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.6
 Date: 2019.12.27
-    Fixed:
-        - Crash when train was leaving without stations (after temp stop)
-        - Popup shows correct used/unused
-    Changed:
-        - Patreons are assigned to trains, not loco
-        - Trains can now be merged/disconnected
+  Fixed:
+    - Crash when train was leaving without stations (after temp stop)
+    - Popup shows correct used/unused
+  Changes:
+    - Patreons are assigned to trains, not loco
+    - Trains can now be merged/disconnected
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.5
 Date: 2019.12.05
-    Added:
-        - Popup to select tier
-        - minor other fixes
-        - rounding fluids
-        - fixed removing a train not being removed from patreons
+  Changes:
+    - Popup to select tier
+    - minor other fixes
+    - rounding fluids
+    - fixed removing a train not being removed from patreons
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2019.10.23
-    Initial release:
-        - Simple notification for trains
-        - Trains are auto named
+  Make:
+    - Simple notification for trains
+    - Trains are auto named
