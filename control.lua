@@ -183,7 +183,8 @@ script.on_event(
           end
 
           if do_print then
-            player.print(printer)
+            local font = mod_defines.prefix .. "_" .. player_setting[mod_defines.settings.font_size].value
+            player.print({"", "[font=" .. font .. "]", printer, "[/font]"})
           end
         end
       end

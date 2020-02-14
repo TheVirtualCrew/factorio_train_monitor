@@ -51,6 +51,14 @@ data:extend({
     order = 'b-c'
   },
   {
+    type = "string-setting",
+    name = mod_defines.settings.font_size,
+    setting_type = "runtime-per-user",
+    default_value = "default",
+    order = 'b-d',
+    allowed_values = mod_defines.settings.font_size_options
+  },
+  {
     type = "bool-setting",
     name = mod_defines.settings.enable_supporters,
     setting_type = "startup",
