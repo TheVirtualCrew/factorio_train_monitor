@@ -9,6 +9,33 @@ local sort_order = {desc = "DESC", asc = "ASC"}
 local temp = {}
 local sort = {}
 
+local indeepcopy = function(object)
+  local lookup_table = {}
+  local function _copy(object)
+    if type(object) ~= "table" then
+      -- don't copy factorio rich objects
+      return object
+    elseif object.__self then
+      return object
+    elseif lookup_table[object] then
+      return lookup_table[object]
+    end
+    local new_table = {}
+    lookup_table[object] = new_table
+    for index, value in pairs(object) do
+      local cop = _copy(index)
+      new_table[_copy(index)] = _copy(value)
+    end
+    return setmetatable(new_table, getmetatable(object))
+  end
+  local copy = _copy(object)
+  for idx, row in pairs(object) do
+    copy[idx]._id = idx
+  end
+
+  return copy
+end
+
 function parse_config_from_gui(gui, config)
   local config_table = gui.config_table
   local values = {}
@@ -284,7 +311,7 @@ local interface = {
     end
 
     list_table.clear()
-    local filtered = table.deepcopy(entries)
+    local filtered = indeepcopy(entries) or {}
     filtered = self:applySearch(filtered, event)
     filtered = self:applySort(filtered, event)
 
@@ -313,17 +340,17 @@ local interface = {
       end
       list_table.add {
         type = "label",
-        name = "sponsor_list_table_ltype" .. index,
+        name = "sponsor_list_table_ltype" .. label._id,
         caption = {mod_defines.prefix .. "_gui." .. label.sponsor_type}
       }
-      list_table.add {type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name}
-      list_table.add {type = "label", name = "sponsor_list_table_lused" .. index, caption = {is_used}}
-      local button_flow = list_table.add {type = "flow", name = "sponsor_list_tablel_buttonflow" .. index}
+      list_table.add {type = "label", name = "sponsor_list_table_lname" .. label._id, caption = label.sponsor_name}
+      list_table.add {type = "label", name = "sponsor_list_table_lused" .. label._id, caption = {is_used}}
+      local button_flow = list_table.add {type = "flow", name = "sponsor_list_tablel_buttonflow" .. label._id}
       local button
       button =
         button_flow.add {
         type = "button",
-        name = "sponsor_list_table_ledit" .. index,
+        name = "sponsor_list_table_ledit" .. label._id,
         caption = {mod_defines.gui.edit}
       }
       button.style.height = 28
@@ -377,7 +404,7 @@ local interface = {
     table.sort(
       list,
       function(a, b)
-        if not a or not b then 
+        if not a or not b then
           return false
         end
         if a[sort_column] ~= b[sort_column] then
