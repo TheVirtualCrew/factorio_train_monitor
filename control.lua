@@ -206,7 +206,14 @@ script.on_event(
       else
         event.entity = event.train.locomotives.front_movers[1] or event.train.locomotives.back_movers[1]
         if event.entity then
-          event.player_index = event.entity.last_user.index
+          local last_user = event.entity.last_user
+          if not last_user then
+            for _, p in pairs(game.connected_players) do
+              last_user = p
+              break
+            end
+          end
+          event.player_index = last_user.index
           Tracking.on_entity_build(event)
         end
       end
