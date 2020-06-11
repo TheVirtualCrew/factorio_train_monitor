@@ -1,7 +1,7 @@
 {
-  "name": "train_monitor",
-  "version": "0.2.6",
-  "title": "TVC Train Monitor",
+  "name": "patreon_rocket",
+  "version": "0.1.2",
+  "title": "Nilaus Patreon Launch",
   "author": "Tim Vroom @TheVirtualCrew",
   "contact": "",
   "homepage": "",
@@ -9,5 +9,5 @@
   "dependencies": [
     "base >= 0.18"
   ],
-  "description": "Show notifications for when trains leave stations, auto names the trains for your sponsors"
+  "description": "Depending on the patreon tier you get 500, 1000 or 2.5k science pack per patreon launch"
 }

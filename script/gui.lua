@@ -9,6 +9,37 @@ local sort_order = {desc = "DESC", asc = "ASC"}
 local temp = {}
 local sort = {}
 
+local function clean_table(tab)
+  local result = {}
+  for _, v in pairs(tab) do
+    if v ~= nil then
+      table.insert(result, v)
+    end
+  end
+  return result
+end
+
+local function format_tick_to_time(ticks)
+  if not ticks then
+    ticks = 0
+  end
+  local secs = ticks / 60
+  local mins = ((secs - secs % 60) / 60) % 60
+  local hrs = ((secs - secs % 60) / (60 * 60)) % 24
+  local days = (secs - secs % 60) / (60 * 60 * 24)
+  local string = string
+
+  return table.concat(
+    clean_table {
+      days > 1 and string.format("%d", days) .. " days " or nil,
+      string.format("%02d", hrs) .. ":",
+      string.format("%02d", mins) .. ":",
+      string.format("%02d", secs % 60)
+    },
+    ""
+  )
+end
+
 function parse_config_from_gui(gui, config)
   local config_table = gui.config_table
   local values = {}
@@ -43,6 +74,7 @@ function make_config_table(gui, config)
     config_table.clear()
   else
     config_table = gui.add {type = "table", name = "config_table", column_count = 2}
+    config_table.style.horizontally_stretchable = "on"
     config_table.style.column_alignments[2] = "right"
   end
   local items = game.item_prototypes
@@ -88,6 +120,12 @@ local function addSortHeader(list_table, name, label, player_index)
     -- caption = {mod_defines.gui.table_type},
     style = "header_sort_button_base"
   }
+  main_button.style.horizontally_squashable = false
+  main_button.style.horizontally_stretchable = true
+
+  if name == "3" then
+    main_button.style.minimal_width = 75
+  end
 
   local sprite = "header_sort_down_white"
   if sort[player_index] and sort[player_index].sort and sort[player_index].sort.column == tonumber(name) then
@@ -113,6 +151,7 @@ local function addSortHeader(list_table, name, label, player_index)
     style = "bold_label"
   }
   text.style.left_padding = 16
+  text.style.right_padding = 8
   text.style.top_padding = -1
 
   return main_button
@@ -230,12 +269,17 @@ local interface = {
       frame.location = global.gui_position[event.player_index]
       frame.style.vertical_align = "center"
       frame.style.horizontal_align = "center"
-      local flow = frame.add({type = "flow", name = "train_monitor_fflow", style = "train_monitor_titlebar_flow"})
+      local flow = frame.add({type = "flow", name = mod_defines.prefix .. "_fflow", style = "horizontal_flow"})
       flow.style.horizontally_stretchable = "on"
       flow.style.vertical_align = "center"
+      flow.style.minimal_width = 320
 
-      flow.add({type = "label", caption = {mod_defines.gui.frame_title}, style = "frame_title"})
-      local widget = flow.add({type = "empty-widget", style = "train_monitor_drag_widget", name = "sponsor_drag"})
+      local label = flow.add({type = "label", caption = {mod_defines.gui.frame_title}, style = "frame_title"})
+      label.drag_target = frame
+      local widget = flow.add({type = "empty-widget", style = "draggable_space_header", name = "sponsor_drag"})
+      widget.style.horizontally_stretchable = "on"
+      widget.style.minimal_width = 24
+      widget.style.natural_height = 24
       widget.drag_target = frame
 
       local searchfield = flow.add({type = "textfield", name = "sponsor_list_search_field"})
@@ -249,18 +293,24 @@ local interface = {
       flow.add(
         {
           type = "sprite-button",
-          sprite = "utility/search_icon",
-          style = "search_button",
+          sprite = "utility/search_white",
+          style = "frame_action_button",
           name = "sponsor_list_search_button"
         }
       )
 
       flow.add(
-        {type = "sprite-button", sprite = "utility/close_white", style = "close_button", name = "sponsor_list_close"}
+        {
+          type = "sprite-button",
+          sprite = "utility/close_white",
+          style = "frame_action_button",
+          name = "sponsor_list_close"
+        }
       )
 
       local scroll = frame.add {type = "scroll-pane", name = "sponsor_list_scroll", vertical_scroll_policy = "always"}
       scroll.style.height = 250
+      scroll.style.minimal_width = 350
       local list_table =
         scroll.add {
         type = "table",
@@ -268,6 +318,7 @@ local interface = {
         column_count = 4,
         style = "table_with_selection"
       }
+      list_table.style.minimal_width = 350
 
       local labels = mod_labels:get_labels()
       self:addItemsToListTable(list_table, labels, event)
@@ -290,14 +341,14 @@ local interface = {
 
     addSortHeader(list_table, "1", {mod_defines.gui.table_type}, event.player_index)
     addSortHeader(list_table, "2", {mod_defines.gui.table_name}, event.player_index)
-    -- addSortHeader(list_table, "3", {mod_defines.gui.table_used}, event.player_index)
+    addSortHeader(list_table, "3", {mod_defines.gui.table_used}, event.player_index)
 
-    list_table.add {
-      type = "label",
-      name = "sponsor_list_table_hused",
-      caption = {mod_defines.gui.table_used},
-      style = "bold_label"
-    }
+    -- list_table.add {
+    --   type = "label",
+    --   name = "sponsor_list_table_hused",
+    --   caption = {mod_defines.gui.table_used},
+    --   style = "bold_label"
+    -- }
 
     list_table.add {
       type = "label",
@@ -307,9 +358,9 @@ local interface = {
     }
 
     for index, label in pairs(filtered) do
-      local is_used = mod_defines.gui.no
-      if label.train ~= nil and label.train.valid then
-        is_used = mod_defines.gui.yes
+      local is_used = {mod_defines.gui.no}
+      if label.rocket_launched then
+        is_used = format_tick_to_time(label.rocket_tick)
       end
       list_table.add {
         type = "label",
@@ -317,30 +368,32 @@ local interface = {
         caption = {mod_defines.prefix .. "_gui." .. label.sponsor_type}
       }
       list_table.add {type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name}
-      list_table.add {type = "label", name = "sponsor_list_table_lused" .. index, caption = {is_used}}
+      list_table.add {type = "label", name = "sponsor_list_table_lused" .. index, caption = is_used}
       local button_flow = list_table.add {type = "flow", name = "sponsor_list_tablel_buttonflow" .. index}
       local button
       button =
         button_flow.add {
-        type = "button",
+        type = "sprite-button",
+        sprite = "utility/rename_icon_normal",
         name = "sponsor_list_table_ledit" .. index,
-        caption = {mod_defines.gui.edit}
+        style = "tool_button"
       }
       button.style.height = 28
       button.style.top_padding = 0
       button.style.bottom_padding = 0
-      button.style.minimal_width = 40
+      button.style.minimal_width = 30
 
       button =
         button_flow.add {
-        type = "button",
+        type = "sprite-button",
+        sprite = "utility/trash",
         name = "sponsor_list_table_ldelete" .. index,
-        caption = {mod_defines.gui.delete}
+        style = "tool_button_red"
       }
       button.style.height = 28
       button.style.top_padding = 0
       button.style.bottom_padding = 0
-      button.style.minimal_width = 40
+      button.style.minimal_width = 30
     end
   end,
   applySearch = function(self, list, event)
@@ -367,7 +420,8 @@ local interface = {
 
     local map = {
       [1] = "sponsor_type",
-      [2] = "sponsor_name"
+      [2] = "sponsor_name",
+      [3] = "rocket_tick"
     }
 
     local sorting = sort[idx].sort
@@ -377,14 +431,14 @@ local interface = {
     table.sort(
       list,
       function(a, b)
-        if not a or not b then 
+        if not a or not b then
           return false
         end
-        if a[sort_column] ~= b[sort_column] then
+        if (a[sort_column] or 0) ~= (b[sort_column] or 0) then
           if sort_dir == sort_order.desc then
-            return a[sort_column] < b[sort_column]
+            return (a[sort_column] or 0) < (b[sort_column] or 0)
           else
-            return a[sort_column] > b[sort_column]
+            return (a[sort_column] or 0) > (b[sort_column] or 0)
           end
         end
         return false
@@ -440,9 +494,19 @@ local interface = {
     local options = mod_labels.get_config()
     options = self.mergeLabelToOptions(options, label)
     make_config_table(frame, options)
-    local button_table = frame.add {type = "flow", direction = "horizontal"}
-    button_table.add {type = "button", name = "sponsor_list_table_add_new_cancel", caption = {mod_defines.gui.cancel}}
-    button_table.add {type = "button", name = "sponsor_list_table_add_new_save", caption = {mod_defines.gui.save}}
+    local button_table = frame.add {type = "flow", direction = "horizontal", style = "dialog_buttons_horizontal_flow"}
+    button_table.add {
+      type = "button",
+      name = "sponsor_list_table_add_new_cancel",
+      caption = {mod_defines.gui.cancel},
+      style = "back_button"
+    }
+    button_table.add {
+      type = "button",
+      name = "sponsor_list_table_add_new_save",
+      caption = {mod_defines.gui.save},
+      style = "confirm_button"
+    }
   end,
   mergeLabelToOptions = function(options, label)
     local res = options or {}

@@ -1,11 +1,4 @@
 require("defines")
-local function arrow_sort(dir, color)
-  return {
-    filename = "__core__/graphics/arrows/table-header-sort-arrow-" .. dir .. "-" .. color .. ".png",
-    size = {16, 16},
-    scale = 0.5
-  }
-end
 
 local function get_font(name, size)
   return {
@@ -50,9 +43,7 @@ data:extend(
   }
 )
 
-local s = data.raw["gui-style"].default
-
-s["header_sort_button_base"] = {
+data.raw["gui-style"].default["header_sort_button_base"] = {
   type = "button_style",
   minimal_height = 18,
   minimal_width = 60,
@@ -71,19 +62,4 @@ s["header_sort_button_base"] = {
   default_graphical_set = {},
   hovered_graphical_set = {},
   clicked_graphical_set = {}
-}
-
-s["train_monitor_titlebar_flow"] = {
-  type = "horizontal_flow_style",
-  horizontally_stretchable = "on",
-  vertical_align = "center",
-  minimal_width = 90
-}
-
-s["train_monitor_drag_widget"] = {
-  type = "empty_widget_style",
-  parent = "draggable_space_header",
-  horizontally_stretchable = "on",
-  natural_height = 24,
-  minimal_width = 24
 }
