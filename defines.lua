@@ -2,8 +2,13 @@ mod_defines = {
   prefix = "patreon_rocket"
 }
 
+mod_defines.unit = {
+  name = "supporter"
+}
+
 mod_defines.settings = {
-  enable_supporters = mod_defines.prefix .. "_enable_supporters"
+  enable_supporters = mod_defines.prefix .. "_enable_supporters",
+  launch_order = mod_defines.prefix .. "_launch_order"
 }
 
 mod_defines.locale = {}

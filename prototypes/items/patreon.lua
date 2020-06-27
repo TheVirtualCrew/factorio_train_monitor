@@ -66,7 +66,19 @@ data:extend(
       subgroup = "intermediate-product",
       order = "m[patreon-satellite-3]",
       stack_size = 1,
-      rocket_launch_product = {"space-science-pack", 2000}
+      rocket_launch_product = {"space-science-pack", 2500}
+    },
+    {
+      type = "item",
+      name = "patreon-tier-4",
+      flags = {"hidden"},
+      icon = "__patreon_rocket__/graphics/icon/nilaus-logo.png",
+      icon_size = 256,
+      icon_mipmaps = 4,
+      subgroup = "intermediate-product",
+      order = "m[patreon-satellite-4]",
+      stack_size = 1,
+      rocket_launch_product = {"space-science-pack", 10000}
     }
   }
 )

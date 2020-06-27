@@ -107,7 +107,18 @@ script.on_event(
       local itemStack = rocket_inv[1]
 
       if itemStack.name == "patreon-satellite" then
-        local label = mod_labels:get_unused_label()
+        local order = settings.global[mod_defines.settings.launch_order].value
+        local label
+        if order == "tier" then
+          for i = 4, 1, -1 do
+            label = mod_labels:get_unused_label("patreon-tier-" .. i)
+            if label ~= false then
+              break
+            end
+          end
+        else
+          label = mod_labels:get_unused_label()
+        end
         local count = itemStack.count
         if label then
           label.rocket_launched = true
@@ -122,6 +133,9 @@ script.on_event(
           elseif label.sponsor_type == "patreon-tier-3" then
             rocket_inv.clear()
             rocket_inv.insert({name = "patreon-tier-3", count = count})
+          elseif label.sponsor_type == "patreon-tier-4" then
+            rocket_inv.clear()
+            rocket_inv.insert({name = "patreon-tier-4", count = count})
           end
 
           tmp_silo_storage[event.rocket_silo.unit_number] = label
@@ -181,6 +195,8 @@ remote.add_interface(
           tier = "patreon-tier-2"
         elseif entry[2] == "3" then
           tier = "patreon-tier-3"
+        elseif entry[2] == "4" then
+          tier = "patreon-tier-4"
         end
         label = {
           sponsor_name = entry[1],

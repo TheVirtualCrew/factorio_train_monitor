@@ -18,7 +18,8 @@ local label = {
         options = {
           "patreon-tier-1",
           "patreon-tier-2",
-          "patreon-tier-3"
+          "patreon-tier-3",
+          "patreon-tier-4"
         },
         selected = "patreon-tier-1"
       },
@@ -34,6 +35,15 @@ local label = {
     end
     return false
   end,
+  get_label_index_by_name = function(self, name)
+    local labels = global.sponsors
+    for index, label in pairs(labels) do
+      if label.sponsor_name == name then
+        return index
+      end
+    end
+    return false
+  end,
   add_label = function(self, options, index)
     local labels = global.sponsors
     local found = false
@@ -41,11 +51,19 @@ local label = {
 
     if #labels > 0 then
       if index ~= nil and labels[index] ~= nil then
+        local label = labels[index]
+        options.rocket_launched = label.rocket_launched
+        options.rocket_tick = label.rocket_tick
         global.sponsors[index] = options
         found = true
       else
         for i, label in pairs(labels) do
           if options.sponsor_name == label.sponsor_name then
+            local lbltype = options.sponsor_type
+            options = label
+            options.sponsor_type = lbltype
+            options.hidden = false
+
             global.sponsors[i] = options
             found = true
             break
@@ -63,14 +81,22 @@ local label = {
   end,
   remove_label = function(self, index)
     if global.sponsors[index] then
-      global.sponsors[index] = nil
+      local label = global.sponsors[index]
+      if label.rocket_launched ~= nil then
+        label.hidden = true
+      else
+        global.sponsors[index] = nil
+      end
     end
   end,
-  get_unused_label = function(self)
+  get_unused_label = function(self, sponsor_type)
     local labels = self:get_labels()
 
     for _, label in pairs(labels) do
-      if not label.rocket_launched then
+      if
+        not label.rocket_launched and
+          ((sponsor_type ~= nil and label.sponsor_type == sponsor_type) or sponsor_type == nil)
+       then
         return label
       end
     end

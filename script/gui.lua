@@ -187,9 +187,7 @@ local interface = {
       sponsor_list_close = self.clickListButton,
       sponsor_list_table_close = self.clickListButton,
       sponsor_list_table_add_new_save = self.clickSaveAddButton,
-      sponsor_list_table_add_new_cancel = self.clickCancelAddButton,
-      sponsor_list_table_apply_save = self.clickConfirmSelectButton,
-      sponsor_list_table_apply_cancel = self.clickCancelSelectButton
+      sponsor_list_table_add_new_cancel = self.clickCancelAddButton
     }
     local match_trigger = {
       sponsor_list_table_ledit = self.clickEditButton,
@@ -264,8 +262,7 @@ local interface = {
       center_gui.sponsor_list.destroy()
     else
       --button_table.add { type = "button", name = "sponsor_list_table_close", caption = { "close" } }
-      local frame =
-        center_gui.add({type = "frame", name = "sponsor_list", direction = "vertical", style = "dialog_frame"})
+      local frame = center_gui.add({type = "frame", name = "sponsor_list", direction = "vertical"})
       frame.location = global.gui_position[event.player_index]
       frame.style.vertical_align = "center"
       frame.style.horizontal_align = "center"
@@ -357,17 +354,20 @@ local interface = {
       style = "bold_label"
     }
 
-    for index, label in pairs(filtered) do
+    for idx, label in pairs(filtered) do
       local is_used = {mod_defines.gui.no}
+      local index = mod_labels:get_label_index_by_name(label.sponsor_name)
       if label.rocket_launched then
         is_used = format_tick_to_time(label.rocket_tick)
       end
       list_table.add {
-        type = "label",
-        name = "sponsor_list_table_ltype" .. index,
-        caption = {mod_defines.prefix .. "_gui." .. label.sponsor_type}
-      }
-      list_table.add {type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name}
+          type = "label",
+          name = "sponsor_list_table_ltype" .. index,
+          caption = {mod_defines.prefix .. "_gui." .. label.sponsor_type}
+        }.style.font_color = label.hidden and {0.815, 0.024, 0, .7} or {1, 1, 1}
+      list_table.add {type = "label", name = "sponsor_list_table_lname" .. index, caption = label.sponsor_name}.style.font_color =
+        label.hidden and {0.815, 0.024, 0, .7} or {1, 1, 1}
+
       list_table.add {type = "label", name = "sponsor_list_table_lused" .. index, caption = is_used}
       local button_flow = list_table.add {type = "flow", name = "sponsor_list_tablel_buttonflow" .. index}
       local button
@@ -383,17 +383,19 @@ local interface = {
       button.style.bottom_padding = 0
       button.style.minimal_width = 30
 
-      button =
-        button_flow.add {
-        type = "sprite-button",
-        sprite = "utility/trash",
-        name = "sponsor_list_table_ldelete" .. index,
-        style = "tool_button_red"
-      }
-      button.style.height = 28
-      button.style.top_padding = 0
-      button.style.bottom_padding = 0
-      button.style.minimal_width = 30
+      if not label.rocket_launched then
+        button =
+          button_flow.add {
+          type = "sprite-button",
+          sprite = "utility/trash",
+          name = "sponsor_list_table_ldelete" .. index,
+          style = "tool_button_red"
+        }
+        button.style.height = 28
+        button.style.top_padding = 0
+        button.style.bottom_padding = 0
+        button.style.minimal_width = 30
+      end
     end
   end,
   applySearch = function(self, list, event)
@@ -531,6 +533,10 @@ local interface = {
   clickCancelAddButton = function(self, event)
     self:closeAddFrame(event)
     self:clickListButton(event)
+    global.storage = {}
+    if temp[event.player_index] then
+      temp[event.player_index] = nil
+    end
   end,
   clickSaveAddButton = function(self, event)
     -- store input
@@ -547,6 +553,7 @@ local interface = {
     if temp[event.player_index] then
       temp[event.player_index] = nil
     end
+    remote.call("new_silo_script", "update_players")
   end,
   clickRemoveButton = function(self, event, index)
     index = tonumber(index)
@@ -554,6 +561,7 @@ local interface = {
     -- double for open/close/refresh idea
     self:clickListButton(event)
     self:clickListButton(event)
+    remote.call("new_silo_script", "update_players")
   end,
   closeAddFrame = function(self, event)
     local player = game.players[event.player_index]
@@ -576,50 +584,6 @@ local interface = {
     local button_table = frame.add {type = "flow", direction = "horizontal"}
     button_table.add {type = "button", name = "sponsor_list_table_apply_cancel", caption = {mod_defines.gui.cancel}}
     button_table.add {type = "button", name = "sponsor_list_table_apply_save", caption = {mod_defines.gui.save}}
-  end,
-  clickConfirmSelectButton = function(self, event)
-    local player = game.players[event.player_index]
-    local center_gui = player.gui.center
-    local frame = center_gui.sponsor_list_apply
-    local options = {
-      sponsor_type = mod_labels.get_config().sponsor_type
-    }
-    local values = parse_config_from_gui(frame, options)
-    local label = mod_labels:get_unused_label(values.sponsor_type)
-
-    if label then
-      mod_labels:create_train_label(global.storage.entity.train, label)
-    else
-      game.print("Out of sponsors")
-      local stor = global.storage
-      if stor.inventory and stor.inventory.valid then
-        stor.inventory.insert({name = stor.entity.name})
-      end
-      stor.entity.destroy()
-    end
-    self.closeSelectFrame(event)
-    global.storage = {}
-    if temp[event.player_index] then
-      temp[event.player_index] = nil
-    end
-  end,
-  clickCancelSelectButton = function(self, event)
-    local stor = global.storage
-    if stor.inventory and stor.inventory.valid then
-      stor.inventory.insert({name = stor.entity.name})
-    end
-    stor.entity.destroy()
-    self.closeSelectFrame(event)
-    global.storage = {}
-  end,
-  closeSelectFrame = function(event)
-    local player = game.players[event.player_index]
-    local center_gui = player.gui.center
-    if center_gui.sponsor_list_apply then
-      center_gui.sponsor_list_apply.destroy()
-    end
-  end,
-  returnEntityToPlayer = function(player, entity)
   end
 }
 

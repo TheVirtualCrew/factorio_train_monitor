@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.3
+Date: 2020.06.27
+  Changes:
+    - Option to change launch order (by input order or by tier)
+    - Added patreon tier 4
+    - Restored tier 3 with 2.5k space science
+    - Added bigger rocket output for science (so 10k can be collected)
+  Bugfixes:
+    - Removed dialog_frame since its removed from base .33
+    - Fixed sorting and edit
+    - Fixed bug when adding a patreon would replace another and lost it's progress
+---------------------------------------------------------------------------------------------------
 Version: 0.1.2
 Date: 2020.06.11
   Changes:

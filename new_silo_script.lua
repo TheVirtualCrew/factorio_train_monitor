@@ -1,14 +1,15 @@
 local mod_gui = require("mod-gui")
 local util = require("util")
 
-local script_version = 3
+local script_version = 4
 
 local default_tracked_items = function()
   return {
     satellite = true,
     ["patreon-tier-1"] = true,
     ["patreon-tier-2"] = true,
-    ["patreon-tier-3"] = true
+    ["patreon-tier-3"] = true,
+    ["patreon-tier-4"] = true
   }
 end
 
@@ -36,6 +37,10 @@ local script_migrations = {
       get_sprite_button(player).destroy()
       get_sprite_button(player)
     end
+  end,
+  [4] = function()
+    log("Updating tier 4 as default")
+    script_data.tracked_items["patreon-tier-4"] = true
   end
 }
 
