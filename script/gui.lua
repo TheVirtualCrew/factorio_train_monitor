@@ -176,8 +176,7 @@ local interface = {
         style = mod_gui.button_style
       }
     end
-    global.gui_position[player.index] =
-      global.gui_position[player.index] or {x = 300 * player.display_scale, y = 300 * player.display_scale}
+    global.gui_position[player.index] = global.gui_position[player.index] or {x = 300 * player.display_scale, y = 300 * player.display_scale}
   end,
   click = function(self, event)
     local triggers = {
@@ -561,6 +560,15 @@ local interface = {
     -- double for open/close/refresh idea
     self:clickListButton(event)
     self:clickListButton(event)
+    local next = mod_labels:get_label_index_after_index(index)
+    local center_gui = game.players[event.player_index].gui.screen
+    local scroll = center_gui.sponsor_list.sponsor_list_scroll
+    local list_table = scroll.sponsor_list_table
+    if not next then
+      scroll.scroll_to_bottem()
+    else
+      scroll.scroll_to_element(list_table["sponsor_list_table_ltype" .. next])
+    end
     remote.call("new_silo_script", "update_players")
   end,
   closeAddFrame = function(self, event)

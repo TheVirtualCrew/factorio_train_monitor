@@ -206,7 +206,7 @@ remote.add_interface(
       end
     end,
     get_totals = function()
-      return #mod_labels:get_labels()
+      return table_size(mod_labels:get_labels())
     end
   }
 )

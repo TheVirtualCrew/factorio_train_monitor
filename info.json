@@ -1,13 +1,13 @@
 {
   "name": "patreon_rocket",
-  "version": "0.1.3",
+  "version": "0.1.6",
   "title": "Nilaus Patreon Launch",
   "author": "Tim Vroom @TheVirtualCrew",
   "contact": "",
   "homepage": "",
-  "factorio_version": "0.18",
+  "factorio_version": "1.0",
   "dependencies": [
-    "base >= 0.18.33"
+    "base >= 1.0"
   ],
-  "description": "Depending on the patreon tier you get 500, 1000 or 2.5k science pack per patreon launch"
+  "description": "Depending on the patreon tier you get 500, 1000, 2.5k or 5k science pack per patreon launch"
 }

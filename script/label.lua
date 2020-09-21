@@ -26,12 +26,27 @@ local label = {
       sponsor_name = ""
     }
   end,
-  get_labels = function(self)
-    return global.sponsors
+  get_labels = function(self, show_hidden)
+    show_hidden = show_hidden or false
+    local result = {}
+    for idx, label in pairs(global.sponsors) do
+      if (not show_hidden and not label.hidden) or show_hidden then
+        result[idx] = label
+      end
+    end
+    return result
   end,
   get_label_by_index = function(self, index)
     if global.sponsors[index] then
       return global.sponsors[index]
+    end
+    return false
+  end,
+  get_label_index_after_index = function(self, index)
+    for idx, label in pairs(global.sponsors) do
+      if idx > index and label.hidden == false then
+        return idx
+      end
     end
     return false
   end,
@@ -93,10 +108,7 @@ local label = {
     local labels = self:get_labels()
 
     for _, label in pairs(labels) do
-      if
-        not label.rocket_launched and
-          ((sponsor_type ~= nil and label.sponsor_type == sponsor_type) or sponsor_type == nil)
-       then
+      if not label.rocket_launched and label.hidden == false and ((sponsor_type ~= nil and label.sponsor_type == sponsor_type) or sponsor_type == nil) then
         return label
       end
     end

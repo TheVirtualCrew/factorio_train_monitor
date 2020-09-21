@@ -6,4 +6,4 @@ require("prototypes.style")
 -- require("prototypes.items.supporter")
 
 -- Update output
-data.raw["rocket-silo"]["rocket-silo"].rocket_result_inventory_size = 5
+data.raw["rocket-silo"]["rocket-silo"].rocket_result_inventory_size = 4

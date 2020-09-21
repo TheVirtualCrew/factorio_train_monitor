@@ -78,7 +78,7 @@ data:extend(
       subgroup = "intermediate-product",
       order = "m[patreon-satellite-4]",
       stack_size = 1,
-      rocket_launch_product = {"space-science-pack", 10000}
+      rocket_launch_product = {"space-science-pack", 5000}
     }
   }
 )
