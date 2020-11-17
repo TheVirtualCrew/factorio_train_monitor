@@ -565,7 +565,7 @@ local interface = {
     local scroll = center_gui.sponsor_list.sponsor_list_scroll
     local list_table = scroll.sponsor_list_table
     if not next then
-      scroll.scroll_to_bottem()
+      scroll.scroll_to_bottom()
     else
       scroll.scroll_to_element(list_table["sponsor_list_table_ltype" .. next])
     end
